@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>distance-gisement</title>
+    <link rel= "stylesheet" href="topo.css">
+</head>
+<body>
+<h1> Calcul de distance et de gisement </h1>
+<div class="grid1">
+<label> x1
+    <input type="number" id=PX1 placeholder="X1">
+</label>
+<label> y1
+    <input type="number" id=PY1 placeholder="Y2">
+</label>
+<label> X2
+    <input type="number" id=PX2 placeholder="X2">
+</label>
+<label> Y2
+    <input type="number" id=PY2 placeholder="Y2">
+</label>
+</div>
+<div>
+<button onclick="calculer()">calculer</button>
+</div>
+<div class="grid2">
+<label> distance
+    <input  id=distance >
+</label>
+<label> Gisement
+    <input  id=gisement >
+</label>
+</div>
+
+
+ <script >
+function calculer(){
+    let x1=document.getElementById("PX1").value;
+    let y1=document.getElementById("PY1").value;
+    let x2=document.getElementById("PX2").value;
+    let y2=document.getElementById("PY2").value;
+    document.getElementById("distance").value=Math.sqrt(Math.pow(x2-x1,2)+Math.pow(y2-y1,2));
+    let delta_x=x2-x1;
+    let delta_y=y2-y1;
+    let Gt;
+    if( delta_x>=0 && delta_y>=0){
+       Gt=Math.atan(delta_x/delta_y);
+    }else if (delta_x>=0 && delta_y<0){
+        Gt=Math.atan(Math.abs(delta_y/delta_x))+100;
+    }else if (delta_x<0 && delta_y<0){
+        Gt=Math.atan(delta_x/delta_y)+200;
+    }else if (delta_x<0 && delta_y>=0){
+        Gt=Math.atan(Math.abs(delta_y/delta_x))+300;
+    }
+    document.getElementById("gisement").value=Gt*200/Math.PI;
+}
+ </script>   
+</body>
+</html>
