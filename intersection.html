@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>intersection</title>
+</head>
+<body>
+    <h1> calcul d'intersection</h1>
+    <label>
+        entrer x1
+        <input id="x1" type="number"> 
+        
+    </label>
+    <label>
+        entrer y1
+        <input id="y1" type="number"> 
+        
+    </label>
+    <label>
+        entrer x2
+        <input id="x2" type="number"> 
+        
+    </label>
+    <label>
+        entrer y2
+        <input id="y2" type="number"> 
+        
+    </label>
+    <label>
+        entrer alpha
+        <input id="alpha" type="number"> 
+        
+    </label>
+    <label>
+        entrer beta
+        <input id="beta" type="number"> 
+        
+    </label>
+    <button onclick="calcul()">calcul par intersection
+
+    </button>
+    <label>
+        x
+        <input id="x" > 
+        
+    </label>
+    <label>
+        y
+        <input id="y"> 
+        
+    </label>
+    <script>
+        function calcul() {
+            let x1 = Number(document.getElementById("x1").value);
+                let y1 = Number(document.getElementById("y1").value);
+                let x2 = Number(document.getElementById("x2").value);
+                let y2 = Number(document.getElementById("y2").value);
+                let ALPHA = Number(document.getElementById("alpha").value);
+                let BETA=Number(document.getElementById("beta").value);
+                let GAMMA=200-ALPHA-BETA;
+                let AB=Math.sqrt((Math.pow(x2-x1,2))+Math.pow(y2-y1,2));
+                let AM=AB*Math.sin(BETA*Math.PI/200)/Math.sin(GAMMA*Math.PI/200);
+                let BM=AB*Math.sin(ALPHA*Math.PI/200)/Math.sin(GAMMA*Math.PI/200);
+                let Gt;
+                let delta_x = x2 - x1;
+                let delta_y = y2 - y1;
+                
+
+
+                if (delta_x >= 0 && delta_y >= 0) {
+                    Gt = Math.atan(delta_x / delta_y) * 200 / Math.PI;
+                } else if (delta_x >= 0 && delta_y < 0) {
+                    Gt = Math.atan(Math.abs(delta_y / delta_x)) * 200 / Math.PI + 100;
+                } else if (delta_x < 0 && delta_y < 0) {
+                    Gt = Math.atan(delta_x / delta_y) * 200 / Math.PI + 200;
+                } else if (delta_x < 0 && delta_y >= 0) {
+                    Gt = Math.atan(Math.abs(delta_y / delta_x)) * 200 / Math.PI + 300;
+                }
+                let gisementAM = Number(Gt) -ALPHA;
+                let x= x1 + AM * Math.sin(gisementAM*Math.PI/200);
+                let y= y1 + AM * Math.cos(gisementAM*Math.PI/200);
+                document.getElementById("x").value=x
+                document.getElementById("y").value=y
+
+        }
+    </script>
+</body>
+</html>
