@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rayonnement</title>
+</head>
+
+<body>
+    <h1> Calcul de point rayonné </h1>
+    <div class="grid1">
+        <label> x1
+            <input type="number" id=PX1 placeholder="X1">
+        </label>
+        <label> y1
+            <input type="number" id=PY1 placeholder="Y2">
+        </label>
+        <label> X2
+            <input type="number" id=PX2 placeholder="X2">
+        </label>
+        <label> Y2
+            <input type="number" id=PY2 placeholder="Y2">
+        </label>
+        
+        <div>
+            <label> angle alpha
+                <input id=alpha>
+            </label>
+            <label> distance
+                <input id=D>
+            </label>
+        </div>
+
+
+        <div>
+            <button onclick="calculer()">calculer de coordonnées</button>
+        </div>
+
+
+        <input id=x> 
+
+
+        <input id=y>
+
+        <script>
+            
+            function calculer() {
+                let x1 = Number(document.getElementById("PX1").value);
+                let y1 = Number(document.getElementById("PY1").value);
+                let x2 = Number(document.getElementById("PX2").value);
+                let y2 = Number(document.getElementById("PY2").value);
+                let ALPHA = Number(document.getElementById("alpha").value);
+                let distance = Number(document.getElementById("D").value);
+                let Gt;
+                let delta_x = x2 - x1;
+                let delta_y = y2 - y1;
+
+
+                if (delta_x >= 0 && delta_y >= 0) {
+                    Gt = Math.atan(delta_x / delta_y) * 200 / Math.PI;
+                } else if (delta_x >= 0 && delta_y < 0) {
+                    Gt = Math.atan(Math.abs(delta_y / delta_x)) * 200 / Math.PI + 100;
+                } else if (delta_x < 0 && delta_y < 0) {
+                    Gt = Math.atan(delta_x / delta_y) * 200 / Math.PI + 200;
+                } else if (delta_x < 0 && delta_y >= 0) {
+                    Gt = Math.atan(Math.abs(delta_y / delta_x)) * 200 / Math.PI + 300;
+                }
+                let gisementAM = Number(Gt) + Number(ALPHA);
+
+                document.getElementById("x").value = Number(x1) + Number(distance) * Math.sin(gisementAM*Math.PI/200-2*Math.PI);
+
+                document.getElementById("y").value = Number(y1) + Number(distance) * Math.cos(gisementAM*Math.PI/200-2*Math.PI);
+            }
+        </script>
+    
+</body>
+
+</html>
