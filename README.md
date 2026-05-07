@@ -1,70 +1,51 @@
-# Projet topographique
+# Topographic Calculations
 
-Trois mini-outils web pour des calculs topographiques classiques (en **gon**, repère où l'axe Y pointe au Nord et le gisement est mesuré dans le sens horaire à partir du Nord).
+Three browser-based tools for classic land-surveying calculations, using **gons** (400 gon = full circle) and the surveying convention: Y axis points North, X axis points East, bearings measured clockwise from North.
 
 ## Pages
 
-| Page | Rôle |
-|------|------|
-| [topo.html](topo.html) | Distance et gisement entre deux points A et B |
-| [rayonement.html](rayonement.html) | Coordonnées d'un point M obtenues par rayonnement depuis une station S avec une référence R |
-| [intersection.html](intersection.html) | Coordonnées d'un point M obtenues par intersection à partir de deux stations A et B et des angles α, β |
+| Page | Purpose |
+|------|---------|
+| [topo.html](topo.html) | Distance and bearing between two points A and B |
+| [rayonement.html](rayonement.html) | Polar survey — locate point M from a station S using a reference R, an angle and a distance |
+| [intersection.html](intersection.html) | Triangulation — locate point M from two stations A, B and the angles α, β observed at each |
 
-Les trois pages partagent la feuille de style [topo.css](topo.css) et sont reliées par une barre de navigation.
+All three share [topo.css](topo.css) and are linked by a top navigation bar.
 
-## Utilisation
+## Usage
 
-Ouvrir n'importe quel fichier HTML dans un navigateur — aucun serveur n'est nécessaire.
+Open any HTML file directly in a browser — no server needed.
 
-## Conventions
+## Principle
 
-- Coordonnées en mètres, axe Y vers le Nord, axe X vers l'Est.
-- Angles et gisements en **gon** (400 gon = un tour complet, 100 gon = 90°).
-- Gisement mesuré dans le sens horaire à partir du Nord.
-- Les angles α et β des observations sont mesurés en sens horaire.
+**Bearing (gisement)** — the angle from North to the direction A→B, clockwise. Computed from `Δx = x₂ − x₁` and `Δy = y₂ − y₁` using `atan`, with a quadrant-dependent offset (0, 100, 200 or 300 gon) so the result lies in `[0, 400)`.
 
-## Formules utilisées
+**Distance** — Euclidean: `d = √(Δx² + Δy²)`.
 
-**Gisement de A vers B** (selon le quadrant de Δx = x₂ − x₁, Δy = y₂ − y₁) :
+**Polar survey (rayonnement)** — given a station S and a reference R, the bearing S→R orients the instrument. Adding the observed angle α gives the bearing S→M, and the new point is projected at the measured distance:
 
-| Quadrant | Condition | Formule (gon) |
-|----------|-----------|---------------|
-| 1 (NE) | Δx ≥ 0, Δy > 0 | `atan(Δx/Δy) × 200/π` |
-| 2 (SE) | Δx ≥ 0, Δy < 0 | `atan(\|Δy/Δx\|) × 200/π + 100` |
-| 3 (SO) | Δx < 0, Δy < 0 | `atan(Δx/Δy) × 200/π + 200` |
-| 4 (NO) | Δx < 0, Δy ≥ 0 | `atan(\|Δy/Δx\|) × 200/π + 300` |
+```
+G_SM = G_SR + α
+x_M  = x_S + d · sin(G_SM)
+y_M  = y_S + d · cos(G_SM)
+```
 
-**Distance** : `d = √(Δx² + Δy²)`
+**Triangulation (intersection)** — given two stations A, B and the angles α (at A) and β (at B) toward the unknown point M, the third angle is `γ = 200 − α − β` (gon). The law of sines gives the side lengths, and the bearing A→M is `G_AB ± α` depending on which side of AB the point lies:
 
-**Rayonnement** : G_SM = G_SR + α, puis x_M = x_S + d·sin(G_SM), y_M = y_S + d·cos(G_SM)
+```
+AM = AB · sin(β) / sin(γ)
+G_AM = G_AB ± α
+x_M  = x_A + AM · sin(G_AM)
+y_M  = y_A + AM · cos(G_AM)
+```
 
-**Intersection** : γ = 200 − α − β, puis loi des sinus : AM = AB·sin(β)/sin(γ), G_AM = G_AB ± α (signe selon le côté de M par rapport à AB).
-
-## Historique des modifications
-
-### Corrections de la logique de calcul
-
-- **[topo.html](topo.html)** — bug corrigé : l'ancienne version ajoutait `+100`, `+200`, `+300` (valeurs en gon) à un `atan` toujours en radians, puis multipliait l'ensemble par `200/π` à la fin. Les décalages explosaient à ~6366 gon. La conversion radians → gon est maintenant faite à l'intérieur de chaque branche de quadrant.
-- **[intersection.html](intersection.html)** — la convention `G_AM = G_AB − α` était codée en dur (M à gauche de AB). Un sélecteur permet désormais de choisir le côté (droite / gauche). Validation ajoutée pour `α + β < 200 gon`. Les distances AM et BM sont également affichées.
-- **[rayonement.html](rayonement.html)** — logique déjà correcte. Le `− 2·π` superflu dans les arguments de `sin`/`cos` (sans effet, sin/cos étant 2π-périodiques) a été retiré.
-- Cas limite Δx = Δy = 0 (gisement indéfini) : message d'erreur explicite au lieu d'un `NaN`.
-
-### Améliorations de l'interface
-
-- Refonte de [topo.css](topo.css) (l'ancienne avait un `height` dupliqué, une grille fixe 300×300 px et un `margin-left: 400px` codé en dur sur le bouton).
-- Mise en page commune aux trois pages : carte centrée, fieldsets, fond dégradé, états de focus, responsive (mobile).
-- Barre de navigation reliant les trois pages avec mise en évidence de la page active.
-- Résultats affichés dans un bloc dédié en lecture seule, avec unités (m, gon) et arrondis (3 à 4 décimales).
-- Ligne d'erreur affichant les messages de validation (champs vides, points confondus, angles invalides).
-- Placeholders donnant des exemples de valeurs attendues.
-
-## Structure du projet
+## Project structure
 
 ```
 projet-topographique/
 ├── README.md
-├── topo.css           # styles partagés
-├── topo.html          # distance + gisement
-├── rayonement.html    # rayonnement
-└── intersection.html  # intersection
+├── topo.css           # shared styles
+├── topo.html          # distance + bearing
+├── rayonement.html    # polar survey
+└── intersection.html  # triangulation
 ```
