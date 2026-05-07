@@ -1,62 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>distance-gisement</title>
-    <link rel= "stylesheet" href="topo.css">
+    <title>Distance et gisement</title>
+    <link rel="stylesheet" href="topo.css">
 </head>
 <body>
-<h1> Calcul de distance et de gisement </h1>
-<div class="grid1">
-<label> x1
-    <input type="number" id=PX1 placeholder="X1">
-</label>
-<label> y1
-    <input type="number" id=PY1 placeholder="Y2">
-</label>
-<label> X2
-    <input type="number" id=PX2 placeholder="X2">
-</label>
-<label> Y2
-    <input type="number" id=PY2 placeholder="Y2">
-</label>
-</div>
-<div>
-<button onclick="calculer()">calculer</button>
-</div>
-<div class="grid2">
-<label> distance
-    <input  id=distance >
-</label>
-<label> Gisement
-    <input  id=gisement >
-</label>
-</div>
+    <nav class="topnav">
+        <a href="topo.html" class="active">Distance & Gisement</a>
+        <a href="rayonement.html">Rayonnement</a>
+        <a href="intersection.html">Intersection</a>
+    </nav>
 
+    <main class="card">
+        <h1>Calcul de distance et de gisement</h1>
+        <p class="subtitle">Entre deux points connus A(x₁, y₁) et B(x₂, y₂)</p>
 
- <script >
-function calculer(){
-    let x1=document.getElementById("PX1").value;
-    let y1=document.getElementById("PY1").value;
-    let x2=document.getElementById("PX2").value;
-    let y2=document.getElementById("PY2").value;
-    document.getElementById("distance").value=Math.sqrt(Math.pow(x2-x1,2)+Math.pow(y2-y1,2));
-    let delta_x=x2-x1;
-    let delta_y=y2-y1;
-    let Gt;
-    if( delta_x>=0 && delta_y>=0){
-       Gt=Math.atan(delta_x/delta_y);
-    }else if (delta_x>=0 && delta_y<0){
-        Gt=Math.atan(Math.abs(delta_y/delta_x))+100;
-    }else if (delta_x<0 && delta_y<0){
-        Gt=Math.atan(delta_x/delta_y)+200;
-    }else if (delta_x<0 && delta_y>=0){
-        Gt=Math.atan(Math.abs(delta_y/delta_x))+300;
-    }
-    document.getElementById("gisement").value=Gt*200/Math.PI;
-}
- </script>   
+        <fieldset>
+            <legend>Point A</legend>
+            <div class="form-grid">
+                <label>x₁ <span class="unit">(m)</span>
+                    <input type="number" id="PX1" step="any" placeholder="ex. 1000.00">
+                </label>
+                <label>y₁ <span class="unit">(m)</span>
+                    <input type="number" id="PY1" step="any" placeholder="ex. 2000.00">
+                </label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Point B</legend>
+            <div class="form-grid">
+                <label>x₂ <span class="unit">(m)</span>
+                    <input type="number" id="PX2" step="any" placeholder="ex. 1100.00">
+                </label>
+                <label>y₂ <span class="unit">(m)</span>
+                    <input type="number" id="PY2" step="any" placeholder="ex. 2050.00">
+                </label>
+            </div>
+        </fieldset>
+
+        <p class="error" id="err"></p>
+        <button onclick="calculer()">Calculer</button>
+
+        <fieldset class="results">
+            <legend>Résultats</legend>
+            <div class="form-grid">
+                <label>Distance <span class="unit">(m)</span>
+                    <input id="distance" readonly>
+                </label>
+                <label>Gisement <span class="unit">(gon)</span>
+                    <input id="gisement" readonly>
+                </label>
+            </div>
+        </fieldset>
+    </main>
+
+    <script>
+        function calculer() {
+            const err = document.getElementById("err");
+            err.textContent = "";
+
+            const x1 = Number(document.getElementById("PX1").value);
+            const y1 = Number(document.getElementById("PY1").value);
+            const x2 = Number(document.getElementById("PX2").value);
+            const y2 = Number(document.getElementById("PY2").value);
+
+            if ([x1, y1, x2, y2].some(v => Number.isNaN(v))) {
+                err.textContent = "Veuillez remplir toutes les coordonnées.";
+                return;
+            }
+
+            const delta_x = x2 - x1;
+            const delta_y = y2 - y1;
+            const distance = Math.sqrt(delta_x * delta_x + delta_y * delta_y);
+
+            if (distance === 0) {
+                err.textContent = "Les points A et B sont identiques.";
+                document.getElementById("distance").value = "";
+                document.getElementById("gisement").value = "";
+                return;
+            }
+
+            // Gisement: angle clockwise from North (Y axis), in gons (400 gon = full circle)
+            let Gt;
+            if (delta_x >= 0 && delta_y > 0) {
+                Gt = Math.atan(delta_x / delta_y) * 200 / Math.PI;
+            } else if (delta_x >= 0 && delta_y < 0) {
+                Gt = Math.atan(Math.abs(delta_y / delta_x)) * 200 / Math.PI + 100;
+            } else if (delta_x < 0 && delta_y < 0) {
+                Gt = Math.atan(delta_x / delta_y) * 200 / Math.PI + 200;
+            } else if (delta_x < 0 && delta_y >= 0) {
+                Gt = Math.atan(Math.abs(delta_y / delta_x)) * 200 / Math.PI + 300;
+            } else {
+                // delta_x === 0 && delta_y === 0 already handled; here delta_y === 0
+                Gt = delta_x > 0 ? 100 : 300;
+            }
+
+            document.getElementById("distance").value = distance.toFixed(3);
+            document.getElementById("gisement").value = Gt.toFixed(4);
+        }
+    </script>
 </body>
 </html>

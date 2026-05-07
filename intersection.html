@@ -1,89 +1,160 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>intersection</title>
+    <title>Intersection</title>
+    <link rel="stylesheet" href="topo.css">
 </head>
 <body>
-    <h1> calcul d'intersection</h1>
-    <label>
-        entrer x1
-        <input id="x1" type="number"> 
-        
-    </label>
-    <label>
-        entrer y1
-        <input id="y1" type="number"> 
-        
-    </label>
-    <label>
-        entrer x2
-        <input id="x2" type="number"> 
-        
-    </label>
-    <label>
-        entrer y2
-        <input id="y2" type="number"> 
-        
-    </label>
-    <label>
-        entrer alpha
-        <input id="alpha" type="number"> 
-        
-    </label>
-    <label>
-        entrer beta
-        <input id="beta" type="number"> 
-        
-    </label>
-    <button onclick="calcul()">calcul par intersection
+    <nav class="topnav">
+        <a href="topo.html">Distance & Gisement</a>
+        <a href="rayonement.html">Rayonnement</a>
+        <a href="intersection.html" class="active">Intersection</a>
+    </nav>
 
-    </button>
-    <label>
-        x
-        <input id="x" > 
-        
-    </label>
-    <label>
-        y
-        <input id="y"> 
-        
-    </label>
+    <main class="card">
+        <h1>Calcul par intersection</h1>
+        <p class="subtitle">Stations A(x₁, y₁) et B(x₂, y₂), angles α (en A) et β (en B) → point M</p>
+
+        <fieldset>
+            <legend>Point A</legend>
+            <div class="form-grid">
+                <label>x₁ <span class="unit">(m)</span>
+                    <input type="number" id="x1" step="any" placeholder="ex. 1000.00">
+                </label>
+                <label>y₁ <span class="unit">(m)</span>
+                    <input type="number" id="y1" step="any" placeholder="ex. 2000.00">
+                </label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Point B</legend>
+            <div class="form-grid">
+                <label>x₂ <span class="unit">(m)</span>
+                    <input type="number" id="x2" step="any" placeholder="ex. 1200.00">
+                </label>
+                <label>y₂ <span class="unit">(m)</span>
+                    <input type="number" id="y2" step="any" placeholder="ex. 2100.00">
+                </label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Angles observés</legend>
+            <div class="form-grid">
+                <label>α (BAM, en A) <span class="unit">(gon)</span>
+                    <input type="number" id="alpha" step="any" placeholder="ex. 50.0000">
+                </label>
+                <label>β (ABM, en B) <span class="unit">(gon)</span>
+                    <input type="number" id="beta" step="any" placeholder="ex. 60.0000">
+                </label>
+                <label>Côté de M par rapport à A→B
+                    <select id="side">
+                        <option value="right">À droite (sens horaire) — α ajouté</option>
+                        <option value="left">À gauche (sens trigo) — α retranché</option>
+                    </select>
+                </label>
+            </div>
+        </fieldset>
+
+        <p class="error" id="err"></p>
+        <button onclick="calcul()">Calculer M</button>
+
+        <fieldset class="results">
+            <legend>Coordonnées de M</legend>
+            <div class="form-grid">
+                <label>x <span class="unit">(m)</span>
+                    <input id="x" readonly>
+                </label>
+                <label>y <span class="unit">(m)</span>
+                    <input id="y" readonly>
+                </label>
+                <label>AM <span class="unit">(m)</span>
+                    <input id="AM" readonly>
+                </label>
+                <label>BM <span class="unit">(m)</span>
+                    <input id="BM" readonly>
+                </label>
+            </div>
+        </fieldset>
+    </main>
+
+    <style>
+        select {
+            font: inherit;
+            font-size: 1rem;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--text);
+            width: 100%;
+        }
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(75, 201, 112, 0.2);
+        }
+    </style>
+
     <script>
+        function gisementGon(dx, dy) {
+            if (dx === 0 && dy === 0) return null;
+            if (dx >= 0 && dy > 0)  return Math.atan(dx / dy) * 200 / Math.PI;
+            if (dx >= 0 && dy < 0)  return Math.atan(Math.abs(dy / dx)) * 200 / Math.PI + 100;
+            if (dx <  0 && dy < 0)  return Math.atan(dx / dy) * 200 / Math.PI + 200;
+            if (dx <  0 && dy >= 0) return Math.atan(Math.abs(dy / dx)) * 200 / Math.PI + 300;
+            return dx > 0 ? 100 : 300; // dy === 0
+        }
+
         function calcul() {
-            let x1 = Number(document.getElementById("x1").value);
-                let y1 = Number(document.getElementById("y1").value);
-                let x2 = Number(document.getElementById("x2").value);
-                let y2 = Number(document.getElementById("y2").value);
-                let ALPHA = Number(document.getElementById("alpha").value);
-                let BETA=Number(document.getElementById("beta").value);
-                let GAMMA=200-ALPHA-BETA;
-                let AB=Math.sqrt((Math.pow(x2-x1,2))+Math.pow(y2-y1,2));
-                let AM=AB*Math.sin(BETA*Math.PI/200)/Math.sin(GAMMA*Math.PI/200);
-                let BM=AB*Math.sin(ALPHA*Math.PI/200)/Math.sin(GAMMA*Math.PI/200);
-                let Gt;
-                let delta_x = x2 - x1;
-                let delta_y = y2 - y1;
-                
+            const err = document.getElementById("err");
+            err.textContent = "";
 
+            const x1 = Number(document.getElementById("x1").value);
+            const y1 = Number(document.getElementById("y1").value);
+            const x2 = Number(document.getElementById("x2").value);
+            const y2 = Number(document.getElementById("y2").value);
+            const alpha = Number(document.getElementById("alpha").value);
+            const beta = Number(document.getElementById("beta").value);
+            const side = document.getElementById("side").value;
 
-                if (delta_x >= 0 && delta_y >= 0) {
-                    Gt = Math.atan(delta_x / delta_y) * 200 / Math.PI;
-                } else if (delta_x >= 0 && delta_y < 0) {
-                    Gt = Math.atan(Math.abs(delta_y / delta_x)) * 200 / Math.PI + 100;
-                } else if (delta_x < 0 && delta_y < 0) {
-                    Gt = Math.atan(delta_x / delta_y) * 200 / Math.PI + 200;
-                } else if (delta_x < 0 && delta_y >= 0) {
-                    Gt = Math.atan(Math.abs(delta_y / delta_x)) * 200 / Math.PI + 300;
-                }
-                let gisementAM = Number(Gt) -ALPHA;
-                let x= x1 + AM * Math.sin(gisementAM*Math.PI/200);
-                let y= y1 + AM * Math.cos(gisementAM*Math.PI/200);
-                document.getElementById("x").value=x
-                document.getElementById("y").value=y
+            if ([x1, y1, x2, y2, alpha, beta].some(v => Number.isNaN(v))) {
+                err.textContent = "Veuillez remplir tous les champs.";
+                return;
+            }
 
+            const gamma = 200 - alpha - beta;
+            if (gamma <= 0 || alpha <= 0 || beta <= 0) {
+                err.textContent = "α + β doit être < 200 gon, et α, β > 0.";
+                return;
+            }
+
+            const AB = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            if (AB === 0) {
+                err.textContent = "Les points A et B sont identiques.";
+                return;
+            }
+
+            const sinG = Math.sin(gamma * Math.PI / 200);
+            const AM = AB * Math.sin(beta * Math.PI / 200) / sinG;
+            const BM = AB * Math.sin(alpha * Math.PI / 200) / sinG;
+
+            const Gab = gisementGon(x2 - x1, y2 - y1);
+            // M à droite de AB (convention horaire) : G_AM = G_AB + α
+            // M à gauche : G_AM = G_AB − α
+            const Gam = side === "right" ? Gab + alpha : Gab - alpha;
+            const rad = Gam * Math.PI / 200;
+
+            const xM = x1 + AM * Math.sin(rad);
+            const yM = y1 + AM * Math.cos(rad);
+
+            document.getElementById("x").value = xM.toFixed(3);
+            document.getElementById("y").value = yM.toFixed(3);
+            document.getElementById("AM").value = AM.toFixed(3);
+            document.getElementById("BM").value = BM.toFixed(3);
         }
     </script>
 </body>
